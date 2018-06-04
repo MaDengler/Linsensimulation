@@ -8,7 +8,7 @@
 //#include "ARayShooter.h"
 //#include "AGeoAsphericDisc.h"
 
-void Asphäre()
+void Paraboloid()
 {
 const double cm = AOpticsManager::cm();
 const double nm = AOpticsManager::nm();
@@ -23,19 +23,19 @@ const double nm = AOpticsManager::nm();
 	manager->SetNsegments(100);
 
 
-	TGeoParaboloid* para = new TGeoParaboloid("Paraboloid", 0, 100*cm, 20*cm);	
+	TGeoParaboloid* para = new TGeoParaboloid("Paraboloid", 0, 120*cm,30*cm);	
 	
 	ALens* paraboloid = new ALens("ParLens", para);
-	paraboloid->SetRefractiveIndex(AGlassCatalog::GetRefractiveIndex("N-BK7"));
+	paraboloid->SetRefractiveIndex(AGlassCatalog::GetRefractiveIndex("N-BK7"));  
 	
 	
-    world->AddNode(paraboloid,1,new TGeoRotation("Pararot", 0,0,0));
+   	world->AddNode(paraboloid,1,new TGeoRotation("Pararot", 0,180,0));
 	world->Draw("ogl");
 
     
-    TGeoTranslation* phtrans = new TGeoTranslation("PhotonTrans", 0, 0,-70);
+   	TGeoTranslation* phtrans = new TGeoTranslation("PhotonTrans", 0, 0,-70);
 
-    ARayArray* Rays = ARayShooter::Circle(800, 50*cm, 3, 20, 0, phtrans, 0);
+    	ARayArray* Rays = ARayShooter::Circle(800, 60*cm, 3, 10, 0, phtrans, 0);
 	manager->TraceNonSequential(Rays);	
     
 	TObjArray* Focused = Rays -> GetFocused();
