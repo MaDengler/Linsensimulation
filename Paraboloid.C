@@ -42,7 +42,7 @@ const double nm = AOpticsManager::nm();
 
     
    	TGeoTranslation* phtrans = new TGeoTranslation("PhotonTrans", 0, 0,-200);
-    	ARayArray* Rays = ARayShooter::RandomSphericalCone(440, 100,30,0, phtrans);
+    ARayArray* Rays = ARayShooter::RandomSphericalCone(440, 100,30,0, phtrans);
 	manager->TraceNonSequential(Rays);	
     
 	TObjArray* Focused = Rays -> GetFocused();
