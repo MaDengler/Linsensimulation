@@ -18,7 +18,7 @@ Double_t z1 = -15 * cm;
 Double_t z2 = z1 + 40*cm;
 
 Double_t curv1 = 1. / (400 * cm);
-Double_t curv2 = 1. / (-300 * cm);
+Double_t curv2 = 1. / (-400 * cm);
 
 Double_t rmax = 100 * cm;
 Double_t rmin = 0. * cm;
@@ -60,15 +60,14 @@ Double_t rmin = 0. * cm;
 
 	std::cout << "Focused: \t" << (Focused -> GetLast())+1 << std::endl; 
 	std::cout << "Exited: \t" << (Exited -> GetLast())+1  << std::endl;
-	std::cout << "Suspended: \t" << (Suspended -> GetLast()) +1 << std::endl;
+	std::cout << "Suspended: \t" << (Suspended -> GetLast()) +1 << "\n" << std::endl;
 
 	for(int n=0;n<(Focused->GetLast()); n++) 
 	{   
 		ARay* RayN = (ARay*)(*Focused)[n];
-		double_t* N;
-		RayN->GetDirection(N);
-		cout << "\t" << N<<endl;
-
+		Double_t Direction[3];
+		RayN -> GetDirection(Direction);
+		cout << Direction[0]<<"\t" << Direction[1]<<"\t" << Direction[2]<<"\t" << endl;
 		TPolyLine3D* polN = RayN -> MakePolyLine3D();
 		polN -> SetLineColor(2);
 		polN -> Draw();
