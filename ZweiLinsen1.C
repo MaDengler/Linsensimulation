@@ -8,14 +8,14 @@
 //#include "ARayShooter.h"
 //#include "AGeoAsphericDisc.h"
 
-void ZweiLinsen()
+void ZweiLinsen1()
 {
 const double cm = AOpticsManager::cm();
 const double mm = AOpticsManager::mm();
 const double nm = AOpticsManager::nm();
 
 
-double_t n = 1.5;						//Brechungsindex Linse
+double_t n = 1.5;						//Brechungsindex 
 
 //Parameter Fresnellinse
 
@@ -28,8 +28,8 @@ double_t r_Fresnel = 2*f_Fresnel*(n-1.0);			//Krümmungsradius Fresnellinse
 Double_t z1_Fresnel = 0*cm;
 Double_t z2_Fresnel = z1_Fresnel+2*(r_Fresnel-sqrt(r_Fresnel*r_Fresnel-0.25*d_Fresnel*d_Fresnel));
 
-Double_t curv1_Fresnel = 1/r_Fresnel;
-Double_t curv2_Fresnel = -1/r_Fresnel;
+Double_t curv1_Fresnel = 1/1E19;
+Double_t curv2_Fresnel = -1/(0.7*f_Fresnel);
 
 Double_t rmax_Fresnel = 0.5*d_Fresnel;
 Double_t rmin_Fresnel = 0*cm;
@@ -52,7 +52,7 @@ Double_t rmin_Lens = 0;
 
 
 	AOpticsManager* manager = new AOpticsManager("manager", "My first manager");
-	TGeoBBox* box = new TGeoBBox(200*cm, 200*cm, 200*cm);
+	TGeoBBox* box = new TGeoBBox(100*cm, 100*cm, 100*cm);
 	AOpticalComponent* world = new AOpticalComponent("world", box);
 	
 	manager->SetTopVolume(world);
@@ -80,9 +80,36 @@ Double_t rmin_Lens = 0;
    
 	world->Draw("ogl");
 
-    
-   	TGeoTranslation* phtrans = new TGeoTranslation("PhotonTrans", 0, 0,-20);
-	ARayArray* Rays = ARayShooter::Circle(546*nm, 245*mm,4,9,0, phtrans);
+/*double_t z_start=-20;
+ARayArray* Rays;
+   for(int i=1;i<1;i++)
+    {
+        double_t rad = 75/3;
+        double_t xy = rad/sqrt(2);
+
+
+        ARay* Ray1 = new ARay(0,546*nm,0,rad,z_start,0,0,0,1);
+        ARay* Ray2 = new ARay(0,546*nm,0,-rad,z_start,0,0,0,1);
+   	    ARay* Ray3 = new ARay(0,546*nm,rad,0,z_start,0,0,0,1);
+        ARay* Ray4 = new ARay(0,546*nm,-rad,0,z_start,0,0,0,1);
+        ARay* Ray5 = new ARay(0,546*nm,xy,xy,z_start,0,0,0,1);
+        ARay* Ray6 = new ARay(0,546*nm,-xy,xy,z_start,0,0,0,1);
+        ARay* Ray7 = new ARay(0,546*nm,-xy,-xy,z_start,0,0,0,1);
+        ARay* Ray8 = new ARay(0,546*nm,xy,-xy,z_start,0,0,0,1);
+       
+        Rays->Add(Ray1);
+        Rays->Add(Ray2);
+        Rays->Add(Ray3);
+        Rays->Add(Ray4);
+        Rays->Add(Ray5);
+        Rays->Add(Ray6);
+        Rays->Add(Ray7);
+        Rays->Add(Ray8);
+    }
+*/
+
+    TGeoTranslation* phtrans = new TGeoTranslation("PhotonTrans", 0, 0,-20);
+	ARayArray* Rays = ARayShooter::Circle(546*nm, 200*mm,4,9,0, phtrans);
 	manager->TraceNonSequential(Rays);	
     
 	TObjArray* Focused = Rays -> GetFocused();
@@ -93,7 +120,7 @@ Double_t rmin_Lens = 0;
 	std::cout << "Exited: \t" << (Exited -> GetLast())+1  << std::endl;
 	std::cout << "Suspended: \t" << (Suspended -> GetLast()) +1 << "\n" << std::endl;
 
-	for(int n=0;n<=(Focused->GetLast())+1; n++) 
+	for(int n=0;n<(Focused->GetLast()); n++) 
 	{   
 		ARay* RayN = (ARay*)(*Focused)[n];
 		Double_t Direction[3];
@@ -101,15 +128,15 @@ Double_t rmin_Lens = 0;
 		cout << Direction[0]<<"\t" << Direction[1]<<"\t" << Direction[2]<<"\t" << endl;
 		TPolyLine3D* polN = RayN -> MakePolyLine3D();
 		polN -> SetLineColor(2);
-		polN -> Draw("ogl");
+		polN -> Draw();
 	}
-    	for(int n=0;n<=(Exited->GetLast())+1; n++) 
+    for(int n=0;n<(Exited->GetLast()); n++) 
 	{   
 		ARay* RayN = (ARay*)(*Exited)[n];
 		TPolyLine3D* polN = RayN -> MakePolyLine3D();
 		polN -> SetLineColor(3);
-		polN -> Draw("ogl");
+		polN -> Draw();
 	}
-  
+ 
 
 }
