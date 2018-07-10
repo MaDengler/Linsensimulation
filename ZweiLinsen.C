@@ -15,74 +15,68 @@ const double mm = AOpticsManager::mm();
 const double nm = AOpticsManager::nm();
 
 
-double_t n = 1.5;						//Brechungsindex Linse
+double_t n = 1.5;						//Brechungsindex
 
-//Parameter Fresnellinse
+//Parameter erst Linse AL2520-A
 
-double_t f_Fresnel = 502.1*mm;					//Brennweite Fresenllinse
-double_t d_Fresnel = 502.1*mm;					//Durchmesser Fresnellinse
+double_t d1 = 25*mm;
 
+double_t z1_1 = 0*mm;
+double_t curv1_1 = 1/(15.54*mm);
+double_t k1 = -1.35;
+double_t coefficients[8]={0,2.3618134E-2,-1.1303079E-3,-1.1113906E-4,-2.3981714E-5,3.035791E-6,1.3660815E-7,-1.8881587E-8};
 
-double_t r_Fresnel = 2*f_Fresnel*(n-1.0);			//Krümmungsradius Fresnellinse
-
-Double_t z1_Fresnel = 0*cm;
-Double_t z2_Fresnel = z1_Fresnel+2*(r_Fresnel-sqrt(r_Fresnel*r_Fresnel-0.25*d_Fresnel*d_Fresnel));
-
-Double_t curv1_Fresnel = 1/r_Fresnel;
-Double_t curv2_Fresnel = -1/r_Fresnel;
-
-Double_t rmax_Fresnel = 0.5*d_Fresnel;
-Double_t rmin_Fresnel = 0*cm;
-
-//Parameter Linse
-
-double_t d_Lens = 50*mm;					//Durchmesser Linse
-double_t f_Lens = f_Fresnel*d_Lens/d_Fresnel;			//Brennweite Linse
-
-double_t r_Lens = 2*f_Lens*(n-1.0);				//Krümmungsradius Linse
-
-Double_t z1_Lens = (f_Fresnel+f_Lens);
-Double_t z2_Lens = z1_Lens+2*(r_Lens-sqrt(r_Lens*r_Lens-0.25*d_Lens*d_Lens));
-
-Double_t curv1_Lens = 1/r_Lens;
-Double_t curv2_Lens = -1/r_Lens;
-
-Double_t rmax_Lens = 0.5*d_Lens;
-Double_t rmin_Lens = 0;
+double_t z1_2 = z1_1 + 7.6*mm;
+double_t curv1_2 = 0;
 
 
-	AOpticsManager* manager = new AOpticsManager("manager", "My first manager");
-	TGeoBBox* box = new TGeoBBox(200*cm, 200*cm, 200*cm);
+//Parameter zweite Linse LB1437-A
+
+double_t d2 = 25.4*mm;
+
+double_t z2_1 = 5*cm;
+double_t curv2_1 = 1/(102.4*mm);
+
+double_t z2_2 = z2_1 + 3.1*mm;
+double_t curv2_2 = -1/(102.4*mm);
+ 
+
+
+	AOpticsManager* manager = new AOpticsManager("manager", "My manager");
+	TGeoBBox* box = new TGeoBBox(15*cm, 15*cm, 25*cm);
 	AOpticalComponent* world = new AOpticalComponent("world", box);
 	
 	manager->SetTopVolume(world);
 	manager->SetNsegments(100);
 	
-	AGeoAsphericDisk* disk_Fresnel = new AGeoAsphericDisk("disk_Fr", z1_Fresnel, curv1_Fresnel, z2_Fresnel, curv2_Fresnel, rmax_Fresnel, rmin_Fresnel); 
-	ALens* Lens_Fresnel = new ALens("Lens_Fresnel", disk_Fresnel);   
-	Lens_Fresnel->SetConstantRefractiveIndex(1.5);  
-	world->AddNode(Lens_Fresnel,1);
+	AGeoAsphericDisk* disk1 = new AGeoAsphericDisk("disk1", z1_1, curv1_1, z1_2, -curv1_2, 0.5*d1, 0*cm); 
+	disk1->SetConicConstants(k1,0);
+	disk1->SetPolynomials(8,coefficients,0,0);
+    disk1->InspectShape();
+	ALens* Lens1 = new ALens("Lens1", disk1);   
+	Lens1->SetConstantRefractiveIndex(1.5);  
+	world->AddNode(Lens1,1);
 
-	AGeoAsphericDisk* disk_Lens = new AGeoAsphericDisk("disk_Fr", z1_Lens, curv1_Lens, z2_Lens, curv2_Lens, rmax_Lens, rmin_Lens); 
-	ALens* Lens = new ALens("Lens_Fresnel", disk_Lens);   
-	Lens->SetConstantRefractiveIndex(1.5);  
-	world->AddNode(Lens,1);
+	AGeoAsphericDisk* disk2 = new AGeoAsphericDisk("disk2", z2_1, curv2_1, z2_2, curv2_2, 0.5*d2, 0*cm); 
+	ALens* Lens2 = new ALens("Lens2", disk2);   
+	Lens2->SetConstantRefractiveIndex(1.5);  
+	world->AddNode(Lens2,1);
 
 
-	TGeoTube* focus = new TGeoTube("foc", 0*cm, 300*mm, 0.01*cm);
-	TGeoTranslation* foctrans = new TGeoTranslation("foctrans", 0, 0,70);
+	TGeoTube* focus = new TGeoTube("foc", 0*cm, 15*mm, 0.01*cm);
+	TGeoTranslation* foctrans = new TGeoTranslation("foctrans", 0, 0,10*cm);
 	AFocalSurface* focal = new AFocalSurface("focal", focus);
 	world->AddNode(focal,1,foctrans);
 
-	TGeoTranslation* obstrans = new TGeoTranslation("obstrans", 0, 0,70.01);
+	TGeoTranslation* obstrans = new TGeoTranslation("obstrans", 0, 0,10.01*cm);
 	AObscuration* obs = new AObscuration("Obs", focus);
 	world->AddNode(obs,1,obstrans);
    
 	world->Draw("ogl");
 
     
-   	TGeoTranslation* phtrans = new TGeoTranslation("PhotonTrans", 0, 0,-20);
-	ARayArray* Rays = ARayShooter::Circle(546*nm, 245*mm,4,9,0, phtrans);
+   	TGeoTranslation* phtrans = new TGeoTranslation("PhotonTrans", 0, 0,-18.1*mm);
+	ARayArray* Rays = ARayShooter::RandomSphericalCone(546*nm,50,27.8,0, phtrans);
 	manager->TraceNonSequential(Rays);	
     
 	TObjArray* Focused = Rays -> GetFocused();
@@ -93,7 +87,7 @@ Double_t rmin_Lens = 0;
 	std::cout << "Exited: \t" << (Exited -> GetLast())+1  << std::endl;
 	std::cout << "Suspended: \t" << (Suspended -> GetLast()) +1 << "\n" << std::endl;
 
-	for(int n=0;n<=(Focused->GetLast())+1; n++) 
+	for(int n=0;n<=(Focused->GetLast()); n++) 
 	{   
 		ARay* RayN = (ARay*)(*Focused)[n];
 		Double_t Direction[3];
@@ -103,11 +97,11 @@ Double_t rmin_Lens = 0;
 		polN -> SetLineColor(2);
 		polN -> Draw("ogl");
 	}
-    	for(int n=0;n<=(Exited->GetLast())+1; n++) 
+    	for(int n=0;n<=(Exited->GetLast()); n++) 
 	{   
 		ARay* RayN = (ARay*)(*Exited)[n];
 		TPolyLine3D* polN = RayN -> MakePolyLine3D();
-		polN -> SetLineColor(3);
+		polN -> SetLineColor(2);
 		polN -> Draw("ogl");
 	}
   

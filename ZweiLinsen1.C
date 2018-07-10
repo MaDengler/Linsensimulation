@@ -80,33 +80,7 @@ Double_t rmin_Lens = 0;
    
 	world->Draw("ogl");
 
-/*double_t z_start=-20;
-ARayArray* Rays;
-   for(int i=1;i<1;i++)
-    {
-        double_t rad = 75/3;
-        double_t xy = rad/sqrt(2);
 
-
-        ARay* Ray1 = new ARay(0,546*nm,0,rad,z_start,0,0,0,1);
-        ARay* Ray2 = new ARay(0,546*nm,0,-rad,z_start,0,0,0,1);
-   	    ARay* Ray3 = new ARay(0,546*nm,rad,0,z_start,0,0,0,1);
-        ARay* Ray4 = new ARay(0,546*nm,-rad,0,z_start,0,0,0,1);
-        ARay* Ray5 = new ARay(0,546*nm,xy,xy,z_start,0,0,0,1);
-        ARay* Ray6 = new ARay(0,546*nm,-xy,xy,z_start,0,0,0,1);
-        ARay* Ray7 = new ARay(0,546*nm,-xy,-xy,z_start,0,0,0,1);
-        ARay* Ray8 = new ARay(0,546*nm,xy,-xy,z_start,0,0,0,1);
-       
-        Rays->Add(Ray1);
-        Rays->Add(Ray2);
-        Rays->Add(Ray3);
-        Rays->Add(Ray4);
-        Rays->Add(Ray5);
-        Rays->Add(Ray6);
-        Rays->Add(Ray7);
-        Rays->Add(Ray8);
-    }
-*/
 
     TGeoTranslation* phtrans = new TGeoTranslation("PhotonTrans", 0, 0,-20);
 	ARayArray* Rays = ARayShooter::Circle(546*nm, 200*mm,4,9,0, phtrans);
