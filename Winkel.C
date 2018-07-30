@@ -8,7 +8,7 @@
 //#include "ARayShooter.h"
 //#include "AGeoAsphericDisc.h"
 
-void ZweiLinsen()
+void Winkel()
 {
 const double cm = AOpticsManager::cm();
 const double mm = AOpticsManager::mm();
@@ -63,47 +63,73 @@ double_t curv2_2 = -1/(102.4*mm);
 	world->AddNode(Lens2,1);
 
 
-	TGeoTube* focus = new TGeoTube("foc", 0*cm, 15*mm, 0.01*cm);
-	TGeoTranslation* foctrans = new TGeoTranslation("foctrans", 0, 0,10*cm);
+	TGeoTube* focus = new TGeoTube("foc", 0*cm, 12.5*mm, 0.01*cm);
+	TGeoTranslation* foctrans = new TGeoTranslation("foctrans", 0, 0,5*cm);
 	AFocalSurface* focal = new AFocalSurface("focal", focus);
 	world->AddNode(focal,1,foctrans);
 
-	TGeoTranslation* obstrans = new TGeoTranslation("obstrans", 0, 0,10.01*cm);
+	TGeoTranslation* obstrans = new TGeoTranslation("obstrans", 0, 0,5.01*cm);
 	AObscuration* obs = new AObscuration("Obs", focus);
 	world->AddNode(obs,1,obstrans);
    
 	world->Draw("ogl");
 
-    
-   	TGeoTranslation* phtrans = new TGeoTranslation("PhotonTrans", 0, 0,-20.3*mm);
-	ARayArray* Rays = ARayShooter::RandomSphericalCone(546*nm,50,26.5,0, phtrans);
+    double Winkel_in = 10;    
+    double Winkel_out;
+    double Winkel_max;
+    double PhStart;    
+
+std::ofstream out ("Winkel.txt");
+
+for(int n=0; n <= 100; n++)
+
+{  
+     
+    PhStart = -1.26/tan((3.14159*Winkel_in)/360);
+    TGeoTranslation* phtrans = new TGeoTranslation("PhotonTrans", 0, 0,PhStart+5.4*mm);
+	ARayArray* Rays = ARayShooter::RandomCone(546*nm,1.26,-PhStart,1000,0, phtrans);
 	manager->TraceNonSequential(Rays);	
     
+
 	TObjArray* Focused = Rays -> GetFocused();
 	TObjArray* Exited = Rays -> GetExited();
 	TObjArray* Suspended = Rays -> GetSuspended();
 
 	std::cout << "Focused: \t" << (Focused -> GetLast())+1 << std::endl; 
 	std::cout << "Exited: \t" << (Exited -> GetLast())+1  << std::endl;
-	std::cout << "Suspended: \t" << (Suspended -> GetLast()) +1 << "\n" << std::endl;
-
-	for(int n=0;n<=(Focused->GetLast()); n++) 
+	std::cout << "Suspended: \t" << (Suspended -> GetLast())+1 << "\n" << std::endl;
+    
+    
+	
+    for(int n=0; n<=(Focused->GetLast()); n++) 
 	{   
 		ARay* RayN = (ARay*)(*Focused)[n];
 		Double_t Direction[3];
-		RayN -> GetDirection(Direction);
-		cout << Direction[0]<<"\t" << Direction[1]<<"\t" << Direction[2]<<"\t" << endl;
-		TPolyLine3D* polN = RayN -> MakePolyLine3D();
+        RayN -> GetDirection(Direction); 
+        Winkel_out = (360/(2*3.14159))*acos(Direction[2]/(sqrt(pow(Direction[0],2)+pow(Direction[1],2)+pow(Direction[2],2))));
+
+       if(Winkel_out>Winkel_max)
+        {
+        Winkel_max=Winkel_out;
+        cout << Direction[0]<<"\t" << Direction[1]<<"\t" << Direction[2]<<"\t"<<Winkel_out<<"\t" << endl;
+		
+        TPolyLine3D* polN = RayN -> MakePolyLine3D();
 		polN -> SetLineColor(2);
 		polN -> Draw("ogl");
-	}
-    	for(int n=0;n<=(Exited->GetLast()); n++) 
+        }
+	}   
+
+    out << Winkel_in << "\t" << Winkel_max << endl;
+    Winkel_max = 0;
+    Winkel_in = Winkel_in + (50.0/100);
+/*   	for(int n=0;n<=(Exited->GetLast()); n++) 
 	{   
 		ARay* RayN = (ARay*)(*Exited)[n];
 		TPolyLine3D* polN = RayN -> MakePolyLine3D();
 		polN -> SetLineColor(2);
-		//polN -> Draw("ogl");
+		polN -> Draw("ogl");
 	}
-  
-
+*/
+}  
+    out.close();
 }
